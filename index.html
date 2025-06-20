@@ -10,14 +10,45 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        /* Fix for dark mode date picker icon */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(var(--dark-mode-filter, 0));
+        }
     </style>
+    <script>
+        // --- Tailwind Dark Mode Configuration ---
+        // This tells Tailwind to use the 'class' strategy for dark mode.
+        tailwind.config = {
+          darkMode: 'class',
+        }
+
+        // --- Apply Theme Immediately ---
+        // This script runs first to prevent a flash of the wrong theme.
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.setProperty('--dark-mode-filter', '1');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.setProperty('--dark-mode-filter', '0');
+        }
+    </script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8 my-8">
+<body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen p-4 transition-colors duration-300">
+    <div class="w-full max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 my-8">
         
-        <header class="mb-8">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Date Calculator: Add to or Subtract From a Date</h1>
-            <p class="text-gray-600 mt-1">Enter a start date and add or subtract any number of days, months, or years.</p>
+        <header class="mb-8 flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">Date Calculator: Add to or Subtract From a Date</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Enter a start date and add or subtract any number of days, months, or years.</p>
+            </div>
+            <button id="theme-toggle" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg id="theme-toggle-dark-icon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+                <svg id="theme-toggle-light-icon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </button>
         </header>
 
         <!-- Main Calculator Section -->
@@ -25,14 +56,14 @@
             <!-- Start Date -->
             <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
                 <div class="flex-grow">
-                    <label for="start-date" class="block text-lg font-semibold text-gray-700">Start Date</label>
-                    <input type="date" id="start-date" class="mt-2 w-full sm:w-auto flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <label for="start-date" class="block text-lg font-semibold text-gray-700 dark:text-gray-300">Start Date</label>
+                    <input type="date" id="start-date" class="mt-2 w-full sm:w-auto flex-grow px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-white">
                 </div>
                 <div class="flex space-x-3 pt-2 sm:pt-8">
-                     <button id="today-btn" class="w-full sm:w-auto px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                     <button id="today-btn" class="w-full sm:w-auto px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Today
                     </button>
-                    <button id="clear-btn" class="w-full sm:w-auto px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <button id="clear-btn" class="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-500 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Clear
                     </button>
                 </div>
@@ -41,37 +72,37 @@
             <!-- Inputs for adding/subtracting time -->
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                  <div class="md:col-span-1">
-                    <label for="operation" class="block text-sm font-medium text-gray-600">Add/Subtract</label>
-                    <select id="operation" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <label for="operation" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Add/Subtract</label>
+                    <select id="operation" class="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-900 dark:text-white">
                         <option value="add">(+) Add</option>
                         <option value="subtract">(-) Subtract</option>
                     </select>
                 </div>
                 <div>
-                    <label for="years" class="block text-sm font-medium text-gray-600">Years</label>
-                    <input type="number" id="years" min="0" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0">
+                    <label for="years" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Years</label>
+                    <input type="number" id="years" min="0" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-white dark:placeholder-gray-400" placeholder="0">
                 </div>
                  <div>
-                    <label for="months" class="block text-sm font-medium text-gray-600">Months</label>
-                    <input type="number" id="months" min="0" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0">
+                    <label for="months" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Months</label>
+                    <input type="number" id="months" min="0" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-white dark:placeholder-gray-400" placeholder="0">
                 </div>
                  <div>
-                    <label for="weeks" class="block text-sm font-medium text-gray-600">Weeks</label>
-                    <input type="number" id="weeks" min="0" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0">
+                    <label for="weeks" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Weeks</label>
+                    <input type="number" id="weeks" min="0" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-white dark:placeholder-gray-400" placeholder="0">
                 </div>
                  <div>
-                    <label for="days" class="block text-sm font-medium text-gray-600">Days</label>
-                    <input type="number" id="days" min="0" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0">
+                    <label for="days" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Days</label>
+                    <input type="number" id="days" min="0" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-white dark:placeholder-gray-400" placeholder="0">
                 </div>
             </div>
         </div>
 
         <!-- Result Section -->
-        <div id="result-container" class="mt-8 pt-6 border-t border-gray-200">
-             <div id="error-message" class="hidden text-red-600 bg-red-50 p-4 rounded-md mb-4"></div>
-             <div id="answer" class="hidden bg-blue-50 p-4 rounded-md">
-                <h2 class="text-lg font-semibold text-gray-800">New Date:</h2>
-                <p id="new-date-text" class="text-2xl font-bold text-blue-600 mt-1"></p>
+        <div id="result-container" class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+             <div id="error-message" class="hidden text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 p-4 rounded-md mb-4"></div>
+             <div id="answer" class="hidden bg-blue-50 dark:bg-gray-700 p-4 rounded-md">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">New Date:</h2>
+                <p id="new-date-text" class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1"></p>
              </div>
         </div>
 
@@ -91,18 +122,52 @@
         const errorMessageElement = document.getElementById('error-message');
         const answerContainer = document.getElementById('answer');
         const newDateTextElement = document.getElementById('new-date-text');
+        
+        const themeToggleButton = document.getElementById('theme-toggle');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
 
         // --- Functions ---
+        
+        /**
+         * Toggles the theme and saves preference to localStorage.
+         */
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+                darkIcon.classList.remove('hidden');
+                lightIcon.classList.add('hidden');
+                document.documentElement.style.setProperty('--dark-mode-filter', '1');
+            } else {
+                localStorage.setItem('theme', 'light');
+                darkIcon.classList.add('hidden');
+                lightIcon.classList.remove('hidden');
+                document.documentElement.style.setProperty('--dark-mode-filter', '0');
+            }
+        }
+        
+        /**
+         * Sets the initial state of the theme toggle button icon.
+         */
+        function setInitialThemeIcon() {
+             if (document.documentElement.classList.contains('dark')) {
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+            } else {
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+            }
+        }
 
         /**
          * Sets the start date input to the current local date in dads-MM-DD format.
          */
         function setDateToToday() {
             const today = new Date();
-            // Adjust for timezone offset to get local date correctly
             today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
             startDateElement.value = today.toISOString().split('T')[0];
-            calculateNewDate(); // Calculate immediately after setting date
+            calculateNewDate();
         }
 
         /**
@@ -120,13 +185,11 @@
          * Calculates the new date based on user inputs.
          */
         function calculateNewDate() {
-            // Clear previous results and errors
             errorMessageElement.classList.add('hidden');
             answerContainer.classList.add('hidden');
 
             const startDateValue = startDateElement.value;
             if (!startDateValue) {
-                // Don't show an error if the date is simply not set yet
                 return;
             }
 
@@ -138,8 +201,6 @@
 
             const totalDays = days + (weeks * 7);
 
-            // The date picker gives us a string like "YYYY-MM-DD". We create a date object
-            // ensuring it's interpreted as local time, not UTC, by splitting and feeding parts.
             const dateParts = startDateValue.split('-').map(Number);
             const newDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
 
@@ -153,7 +214,6 @@
                 newDate.setDate(newDate.getDate() - totalDays);
             }
 
-            // Format the date for display
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             newDateTextElement.textContent = newDate.toLocaleDateString('en-US', options);
             answerContainer.classList.remove('hidden');
@@ -162,17 +222,17 @@
         // --- Event Listeners ---
         todayBtn.addEventListener('click', setDateToToday);
         clearBtn.addEventListener('click', clearFields);
+        themeToggleButton.addEventListener('click', toggleTheme);
         
-        // Add event listeners for live calculation
         const inputs = [startDateElement, operationElement, yearsElement, monthsElement, weeksElement, daysElement];
         inputs.forEach(input => {
-            // 'change' for date/select, 'input' for number fields for instant updates
             const eventType = (input.type === 'number' || input.type === 'text') ? 'input' : 'change';
             input.addEventListener(eventType, calculateNewDate);
         });
         
         // --- Initialization ---
-        setDateToToday(); // Set the date to today and run initial calculation
+        setInitialThemeIcon();
+        setDateToToday();
 
     </script>
 </body>
